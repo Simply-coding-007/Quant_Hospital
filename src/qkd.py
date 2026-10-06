@@ -67,6 +67,7 @@ class BB84Simulation:
         noise_type: Literal["depolarizing", "phase_flip"] = "depolarizing",
         eve_fraction: float = 0.0,
         seed: int = 42,
+        attack_schedule: Optional[List[Tuple[int, int]]] = None,
     ) -> None:
         if n_qubits <= 0:
             raise ValueError(f"n_qubits must be positive, got {n_qubits}")
@@ -81,6 +82,7 @@ class BB84Simulation:
         self.noise_level = float(noise_level)
         self.noise_type = noise_type
         self.eve_fraction = float(eve_fraction)
+        self.attack_schedule = attack_schedule
         self.seed = seed
         self.rng = np.random.default_rng(seed)
 
@@ -109,8 +111,20 @@ class BB84Simulation:
         alice_bits = self.rng.integers(0, 2, size=self.n_qubits, dtype=np.int32)
         alice_bases = self.rng.integers(0, 2, size=self.n_qubits, dtype=np.int32)
 
-        # 2. Eve intercept-resend configuration
-        eve_intercepted = self.rng.random(self.n_qubits) < self.eve_fraction
+        # 2. Eve intercept-resend configuration (global or scheduled windows)
+        if self.attack_schedule is not None:
+            eve_intercepted = np.zeros(self.n_qubits, dtype=bool)
+            frac = self.eve_fraction if self.eve_fraction > 0.0 else 1.0
+            for start_idx, end_idx in self.attack_schedule:
+                start = max(0, min(self.n_qubits, start_idx))
+                end = max(0, min(self.n_qubits, end_idx))
+                if end > start:
+                    window_len = end - start
+                    window_mask = self.rng.random(window_len) < frac
+                    eve_intercepted[start:end] = window_mask
+        else:
+            eve_intercepted = self.rng.random(self.n_qubits) < self.eve_fraction
+
         eve_bases = np.full(self.n_qubits, -1, dtype=np.int32)
         eve_bits = np.full(self.n_qubits, -1, dtype=np.int32)
 
@@ -283,6 +297,7 @@ def run_bb84_simulation(
     noise_type: str = "depolarizing",
     eve_fraction: float = 0.0,
     seed: int = 42,
+    attack_schedule: Optional[List[Tuple[int, int]]] = None,
 ) -> QKDMetrics:
     """Helper functional interface to run BB84 simulation."""
     sim = BB84Simulation(
@@ -291,6 +306,7 @@ def run_bb84_simulation(
         noise_type=noise_type,  # type: ignore
         eve_fraction=eve_fraction,
         seed=seed,
+        attack_schedule=attack_schedule,
     )
     return sim.run()
 

@@ -321,22 +321,41 @@ def generate_detection_heatmap_plot(
 
 def main() -> None:
     """Generate all presentation figures into results/ directory."""
+    import argparse
+    parser = argparse.ArgumentParser(description="Generate Publication Figures for Quantum-Secure Biomedical Networks")
+    parser.add_argument("--all", action="store_true", help="Generate all extended research plots (calibration, policies, fingerprint, changepoint)")
+    args = parser.parse_args()
+
     results_dir = Path("results")
     results_dir.mkdir(parents=True, exist_ok=True)
     setup_style()
 
     print("=========================================================")
-    print("PHASE 5: GENERATING PRESENTATION FIGURES (300 DPI)")
+    print("PHASE 5: GENERATING CORE PRESENTATION FIGURES (300 DPI)")
     print("=========================================================")
 
     p1 = generate_qber_vs_noise_plot(results_dir)
     p2 = generate_key_rate_curve_plot(results_dir)
     p3 = generate_detection_heatmap_plot(results_dir)
 
-    print("\n[SUCCESS] Phase 5 verified: All 3 presentation figures created:")
+    print("\n[SUCCESS] Core presentation figures verified:")
     print(f"  1. {p1}")
     print(f"  2. {p2}")
     print(f"  3. {p3}")
+
+    if args.all:
+        print("\n=========================================================")
+        print("EXTENDED RESEARCH FIGURE SUITE (Tasks 1 - 4)")
+        print("=========================================================")
+        from src.calibration import run_calibration_and_explainability_suite
+        from src.policy_eval import run_policy_benchmark_suite
+        from src.fingerprint import run_fingerprint_suite
+        from src.changepoint import run_changepoint_suite
+
+        run_calibration_and_explainability_suite()
+        run_policy_benchmark_suite()
+        run_fingerprint_suite()
+        run_changepoint_suite()
 
 
 if __name__ == "__main__":

@@ -1,0 +1,7 @@
+{
+  "chosen_model": "RF (Isotonic)",
+  "calibrated": true,
+  "calibration_method": "isotonic",
+  "training_split": "KDDTrain+ (80% train / 20% val)",
+  "held_out_test": "KDDTest+ (strictly untouched)"
+}

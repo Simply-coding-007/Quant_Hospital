@@ -313,12 +313,15 @@ st.markdown(
 # -------------------------------------------------------------
 # TABS
 # -------------------------------------------------------------
-tab1, tab2, tab3, tab4 = st.tabs(
+tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs(
     [
         "📊 Live Results & Telemetry",
         "🗺️ Adaptive Decision Map",
         "🔬 BB84 Protocol Details",
-        "🤖 Classical Threat Layer",
+        "🤖 Threat Layer & Explainability",
+        "🔍 Channel Fingerprinting",
+        "⏱️ Burst & Changepoint Detection",
+        "📈 Policy Benchmarking",
     ]
 )
 
@@ -516,65 +519,109 @@ with tab3:
     st.dataframe(pd.DataFrame(preview_rows), use_container_width=True, hide_index=True)
 
 # -------------------------------------------------------------
-# TAB 4: THREAT LAYER
+# TAB 4: THREAT LAYER & EXPLAINABILITY
 # -------------------------------------------------------------
 with tab4:
-    st.subheader("Classical ML Threat Classification (NSL-KDD)")
-    try:
-        model = load_cached_model()
-        st.markdown(
-            "The classical threat layer models hospital network traffic using Random Forest and Logistic Regression "
-            "pipelines trained on NSL-KDD benchmark telemetry."
-        )
+    st.subheader("Classical Threat Classification & SHAP Explainability")
+    col_t1, col_t2 = st.columns(2)
 
-        col_m1, col_m2 = st.columns(2)
-        with col_m1:
-            st.markdown("#### Model Performance Metrics (NSL-KDD Test Set)")
-            metrics_summary = pd.DataFrame(
-                [
-                    {
-                        "Model": "Random Forest (Production)",
-                        "Accuracy": "77.59%",
-                        "Precision": "96.79%",
-                        "Recall": "62.71%",
-                        "F1-Score": "0.7611",
-                    },
-                    {
-                        "Model": "Logistic Regression (Baseline)",
-                        "Accuracy": "75.39%",
-                        "Precision": "91.74%",
-                        "Recall": "62.39%",
-                        "F1-Score": "0.7427",
-                    },
-                ]
-            )
-            st.table(metrics_summary)
+    with col_t1:
+        st.markdown("#### Model Calibration Curves (Platt & Isotonic)")
+        cal_path = Path("results/calibration_curves.png")
+        if cal_path.exists():
+            st.image(str(cal_path), caption="Reliability Diagrams on Validation & Test Sets with Bin Counts", use_container_width=True)
+        else:
+            st.info("Run `python src/calibration.py` to view calibration curves.")
 
-        with col_m2:
-            st.markdown("#### Confusion Matrix (Random Forest)")
-            fig_cm, ax_cm = plt.subplots(figsize=(4.5, 3.2))
-            cm_data = np.array([[9444, 267], [4786, 8047]])
-            sns.heatmap(
-                cm_data,
-                annot=True,
-                fmt="d",
-                cmap="Blues",
-                xticklabels=["Normal", "Attack"],
-                yticklabels=["Normal", "Attack"],
-                cbar=False,
-                ax=ax_cm,
-            )
-            ax_cm.set_xlabel("Predicted Label")
-            ax_cm.set_ylabel("True Label")
-            st.pyplot(fig_cm)
-            plt.close(fig_cm)
+    with col_t2:
+        st.markdown("#### Global Feature Attribution (SHAP Summary)")
+        shap_path = Path("results/shap_summary.png")
+        if shap_path.exists():
+            st.image(str(shap_path), caption="SHAP TreeExplainer Global Feature Impact on Threat Probability", use_container_width=True)
+        else:
+            st.info("Run `python src/calibration.py` to view SHAP summary.")
 
-        if current_sample_info is not None:
-            st.markdown("---")
-            st.markdown(f"#### Inspected Network Flow Features (Row #{current_sample_info['row_idx']})")
-            sample_features_df = current_sample_info["sample_df"][CATEGORICAL_FEATURES + NUMERICAL_FEATURES[:12]].astype(str)
-            st.dataframe(sample_features_df.T.rename(columns={sample_features_df.index[0]: "Value"}))
+    st.markdown("---")
+    cal_metrics_path = Path("results/calibration_metrics.csv")
+    if cal_metrics_path.exists():
+        st.markdown("#### Calibration Benchmark Table (Brier Score & Accuracy)")
+        st.dataframe(pd.read_csv(cal_metrics_path), use_container_width=True, hide_index=True)
 
-    except Exception as e:
-        st.error(f"Error displaying Threat Layer: {e}")
+    if current_sample_info is not None:
+        st.markdown("---")
+        st.markdown(f"#### Inspected Network Flow Features (Row #{current_sample_info['row_idx']})")
+        sample_features_df = current_sample_info["sample_df"][CATEGORICAL_FEATURES + NUMERICAL_FEATURES[:12]].astype(str)
+        st.dataframe(sample_features_df.T.rename(columns={sample_features_df.index[0]: "Value"}))
+
+# -------------------------------------------------------------
+# TAB 5: CHANNEL FINGERPRINTING
+# -------------------------------------------------------------
+with tab5:
+    st.subheader("Quantum Optical Channel Anomaly Fingerprinting")
+    st.markdown(
+        "Decomposes basis-resolved QBER (QBER_Z vs. QBER_X) to attribute quantum physical degradation "
+        "to wiretapping vs. environmental noise."
+    )
+
+    col_f1, col_f2 = st.columns(2)
+    with col_f1:
+        fp_scatter = Path("results/fingerprint_scatter.png")
+        if fp_scatter.exists():
+            st.image(str(fp_scatter), caption="Basis-Resolved Error Trajectory Scatter Plot with Theoretical Curves", use_container_width=True)
+        else:
+            st.info("Run `python src/fingerprint.py` to generate fingerprint scatter.")
+
+    with col_f2:
+        fp_cm = Path("results/fingerprint_confusion_matrix.png")
+        if fp_cm.exists():
+            st.image(str(fp_cm), caption="5-Fold Cross-Validation Anomaly Attribution Confusion Matrix", use_container_width=True)
+        else:
+            st.info("Run `python src/fingerprint.py` to generate confusion matrix.")
+
+# -------------------------------------------------------------
+# TAB 6: BURST & CHANGEPOINT DETECTION
+# -------------------------------------------------------------
+with tab6:
+    st.subheader("Time-Varying Burst Attack & Sequential CUSUM Monitoring")
+    st.markdown(
+        "Real-time sequential CUSUM change-point detector localized on partitioned sifted key blocks (B = 50 bits) "
+        "to defeat transient/intermittent wiretapping attempts."
+    )
+
+    cp_img = Path("results/changepoint_detection.png")
+    if cp_img.exists():
+        st.image(str(cp_img), caption="3-Panel CUSUM Changepoint Detection and Intermittent Intrusion Localization", use_container_width=True)
+    else:
+        st.info("Run `python src/changepoint.py` to generate changepoint plot.")
+
+    cp_csv = Path("results/changepoint_benchmark.csv")
+    if cp_csv.exists():
+        st.markdown("#### CUSUM vs. Whole-Session Detection Benchmark")
+        st.dataframe(pd.read_csv(cp_csv), use_container_width=True, hide_index=True)
+
+# -------------------------------------------------------------
+# TAB 7: POLICY BENCHMARKING
+# -------------------------------------------------------------
+with tab7:
+    st.subheader("Comparative Security Policy Benchmark Suite")
+    st.markdown(
+        "Benchmarking Policy A (Point 11%), Policy B (UCB 11%), and Policy C (Adaptive Threat-Aware) "
+        "across >=50 seeded Monte Carlo trials per cell."
+    )
+
+    col_p1, col_p2 = st.columns(2)
+    with col_p1:
+        p_roc = Path("results/policy_roc_curves.png")
+        if p_roc.exists():
+            st.image(str(p_roc), caption="Security vs. Availability Tradeoff Curves (FRR & Wiretap Detection)", use_container_width=True)
+    with col_p2:
+        p_hm = Path("results/multi_threat_heatmaps.png")
+        if p_hm.exists():
+            st.image(str(p_hm), caption="Adaptive Decision Envelopes Across Low, Medium, and High Classical Threat", use_container_width=True)
+
+    st.markdown("---")
+    q_scale_csv = Path("results/policy_qubit_scaling.csv")
+    if q_scale_csv.exists():
+        st.markdown("#### Finite-Key Scaling & Variance Collapse")
+        st.dataframe(pd.read_csv(q_scale_csv), use_container_width=True, hide_index=True)
 

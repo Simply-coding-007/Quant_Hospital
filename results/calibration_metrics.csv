@@ -1,0 +1,13 @@
+Evaluation Set,Model Variant,Brier Score,Accuracy,Precision,Recall,F1-Score,TN,FP,FN,TP
+Validation Split,LR (Uncalibrated),0.01979,0.9719,0.9764,0.9629,0.9696,13196,273,435,11291
+Validation Split,LR (Platt / Sigmoid),0.01980,0.9719,0.9763,0.9630,0.9696,13195,274,434,11292
+Validation Split,LR (Isotonic),0.01828,0.9749,0.9682,0.9783,0.9732,13092,377,255,11471
+Validation Split,RF (Uncalibrated),0.00132,0.9987,0.9996,0.9975,0.9985,13464,5,29,11697
+Validation Split,RF (Platt / Sigmoid),0.00098,0.9987,0.9990,0.9982,0.9986,13457,12,21,11705
+Validation Split,RF (Isotonic),0.00085,0.9988,0.9987,0.9987,0.9987,13454,15,15,11711
+Official Test (KDDTest+),LR (Uncalibrated),0.22350,0.7540,0.9171,0.6243,0.7429,8987,724,4821,8012
+Official Test (KDDTest+),LR (Platt / Sigmoid),0.22376,0.7542,0.9172,0.6246,0.7432,8987,724,4817,8016
+Official Test (KDDTest+),LR (Isotonic),0.22228,0.7602,0.9135,0.6394,0.7522,8934,777,4628,8205
+Official Test (KDDTest+),RF (Uncalibrated),0.17037,0.7665,0.9684,0.6097,0.7483,9456,255,5009,7824
+Official Test (KDDTest+),RF (Platt / Sigmoid),0.19301,0.7935,0.9695,0.6580,0.7839,9445,266,4389,8444
+Official Test (KDDTest+),RF (Isotonic),0.17896,0.8036,0.9693,0.6764,0.7968,9436,275,4153,8680
