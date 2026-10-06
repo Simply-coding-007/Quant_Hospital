@@ -40,6 +40,7 @@ def push_repo(token: str | None = None) -> None:
             "src",
             "models",
             "results",
+            "data",
         ],
     )
 
