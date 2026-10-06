@@ -578,16 +578,3 @@ with tab4:
     except Exception as e:
         st.error(f"Error displaying Threat Layer: {e}")
 
-# -------------------------------------------------------------
-# LIMITATIONS EXPANDER
-# -------------------------------------------------------------
-with st.expander("ℹ️ Honest Technical Limitations & Simulation Scope"):
-    st.markdown(
-        """
-        - **Simulation vs Real Hardware:** All quantum states, gate errors, and measurements are executed via classical simulation (`qiskit-aer`). Real optical quantum channels suffer from photon loss, detector dead time, dark counts, and timing jitter.
-        - **Asymptotic Key Rate:** The key rate formula $R = \max(0, 1 - 2h(QBER))$ assumes the asymptotic infinite-key regime. In practical finite-length implementations, error correction efficiency (e.g., Cascade / LDPC with efficiency $f \approx 1.15$) and privacy amplification further reduce yield.
-        - **Threat Model Scope:** Eve is modeled as an individual intercept-resend adversary. Collective or coherent quantum attacks and side-channel vulnerabilities (e.g., Trojan horse, detector blinding) are outside the simulated scope.
-        - **Dataset Context:** NSL-KDD is a standard network intrusion benchmark. In real healthcare deployments, domain-specific telemetry (DICOM, HL7, FHIR, IoMT device streams) would drive the classical threat classifier.
-        - **No Quantum Advantage Claim:** Quantum Key Distribution provides physical-layer information-theoretic security guarantees against eavesdropping, not computational acceleration or "quantum supremacy".
-        """
-    )
